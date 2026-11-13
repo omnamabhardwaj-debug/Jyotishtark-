@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jyotish Tark</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff8ee;--card:#ffffff;--tx:#3b1d0a;--mu:#8a6a50;--ac:#e8590c;--ac2:#f59f00;--bd:#f0d9bd}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1a0f2e;--card:#271846;--tx:#fdf1dc;--mu:#b9a5d6;--ac:#ffa94d;--ac2:#ffd43b;--bd:#3d2a66}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#1a0f2e;--card:#271846;--tx:#fdf1dc;--mu:#b9a5d6;--ac:#ffa94d;--ac2:#ffd43b;--bd:#3d2a66}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Noto Sans Devanagari",sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:12px 14px 90px}
+header{text-align:center;padding:14px 0 6px}
+h1{margin:0;font-size:28px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mu);font-size:13px;margin-top:4px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mu);padding:10px 2px;font-size:11px;cursor:pointer}
+nav button span{display:block;font-size:22px}
+nav button.on{color:var(--ac);font-weight:700}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rashi{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;color:var(--tx)}
+.rashi.on{border-color:var(--ac);box-shadow:0 0 0 2px var(--ac) inset}
+.rashi b{display:block;font-size:26px}.rashi small{color:var(--mu);font-size:11px}
+.pills{display:flex;gap:6px;margin:8px 0;overflow-x:auto}
+.pill{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+.pill.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.bar{height:8px;background:var(--bd);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 4px;font-size:14px}
+.btn{background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;border:0;border-radius:12px;padding:11px 16px;font-size:15px;font-weight:600;cursor:pointer}
+.btn.g{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
+.ring{width:210px;height:210px;border-radius:50%;margin:14px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;border:6px solid var(--bd);background:radial-gradient(circle,var(--card),var(--bg));transition:transform .08s}
+.ring:active{transform:scale(.94)}
+.ring b{font-size:52px;color:var(--ac)}
+.mantra{font-size:20px;text-align:center;line-height:1.5;margin:6px 0}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px;cursor:pointer}
+.opt.ok{background:#2f9e44;color:#fff}.opt.no{background:#e03131;color:#fff}
+.wide{aspect-ratio:16/9;width:100%;border:0;border-radius:12px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const {useState,useEffect,useMemo}=React;
+const html=htm.bind(React.createElement);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+const RASHI=[["मेष","Aries","♈"],["वृषभ","Taurus","♉"],["मिथुन","Gemini","♊"],["कर्क","Cancer","♋"],["सिंह","Leo","♌"],["कन्या","Virgo","♍"],["तुला","Libra","♎"],["वृश्चिक","Scorpio","♏"],["धनु","Sagittarius","♐"],["मकर","Capricorn","♑"],["कुंभ","Aquarius","♒"],["मीन","Pisces","♓"]];
+const COLORS=["लाल","पीला","हरा","सफेद","नीला","केसरिया","गुलाबी","बैंगनी"];
+const GEN=["आज आपके पुराने रुके हुए काम आगे बढ़ेंगे।","धैर्य रखें, बड़ा फल मिलने वाला है।","किसी अपने से शुभ समाचार मिल सकता है।","खर्च पर नियंत्रण रखें, बचत पर ध्यान दें।","आज आपकी बातों का लोगों पर अच्छा असर रहेगा।","नई शुरुआत के लिए दिन अनुकूल है।","मन शांत रखें, निर्णय सोच-समझकर लें।","भाग्य आपका साथ देगा, मेहनत जारी रखें।"];
+const LOVE=["साथी के साथ मधुर समय बीतेगा।","पुराने रिश्ते में गलतफहमी दूर होगी।","अपनी भावनाएँ खुलकर व्यक्त करें।","परिवार का सहयोग मिलेगा।"];
+const WORK=["ऑफिस में प्रशंसा मिलेगी।","नई ज़िम्मेदारी मिल सकती है।","व्यापार में लाभ के योग।","सहकर्मियों से तालमेल बनाएँ।"];
+const HEALTH=["सेहत अच्छी रहेगी, योग करें।","थकान से बचें, पानी खूब पिएँ।","खान-पान में संयम रखें।","सुबह की सैर लाभ देगी।"];
+function seed(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return()=>{h^=h<<13;h^=h>>>17;h^=h<<5;return(h>>>0)/4294967296}}
+function forecast(i,d){const r=seed(d.toDateString()+i);const p=a=>a[Math.floor(r()*a.length)];const s=()=>40+Math.floor(r()*60);
+return{gen:p(GEN),love:p(LOVE),work:p(WORK),health:p(HEALTH),sl:s(),sw:s(),sh:s(),num:1+Math.floor(r()*9),col:p(COLORS),time:`${9+Math.floor(r()*8)}:${r()<.5?"00":"30"}`}}
+
+function Bar({l,v}){return html`<div><div class="row"><span>${l}</span><b>${v}%</b></div><div class="bar"><i style=${{width:v+"%"}}></i></div></div>`}
+
+function Rashifal(){
+ const [i,setI]=useState(()=>store.get("rashi",0));
+ const [off,setOff]=useState(0);
+ useEffect(()=>store.set("rashi",i),[i]);
+ const d=new Date();d.setDate(d.getDate()+off);
+ const f=useMemo(()=>forecast(i,d),[i,off]);
+ const ds=d.toLocaleDateString("hi-IN",{weekday:"long",day:"numeric",month:"long"});
+ return html`<div>
+  <div class="grid">${RASHI.map((r,k)=>html`<button key=${k} class=${"rashi"+(k===i?" on":"")} onClick=${()=>setI(k)}><b>${r[2]}</b>${r[0]}<br/><small>${r[1]}</small></button>`)}</div>
+  <div class="pills">${[["कल",-1],["आज",0],["कल (अगला)",1],["परसों",2]].map(([t,o])=>html`<button key=${o} class=${"pill"+(off===o?" on":"")} onClick=${()=>setOff(o)}>${t==="कल"?"बीता कल":t}</button>`)}</div>
+  <div class="card">
+   <div style=${{fontSize:20,fontWeight:700}}>${RASHI[i][2]} ${RASHI[i][0]} राशिफल</div>
+   <div style=${{color:"var(--mu)",fontSize:13}}>${ds}</div>
+   <p>${f.gen}</p>
+   <${Bar} l="❤️ प्रेम" v=${f.sl}/><p style=${{margin:"4px 0",fontSize:13,color:"var(--mu)"}}>${f.love}</p>
+   <${Bar} l="💼 करियर" v=${f.sw}/><p style=${{margin:"4px 0",fontSize:13,color:"var(--mu)"}}>${f.work}</p>
+   <${Bar} l="🌿 सेहत" v=${f.sh}/><p style=${{margin:"4px 0",fontSize:13,color:"var(--mu)"}}>${f.health}</p>
+   <div class="row" style=${{marginTop:14}}><span>🍀 शुभ अंक: <b>${f.num}</b></span><span>🎨 शुभ रंग: <b>${f.col}</b></span><span>⏰ <b>${f.time}</b></span></div>
+  </div>
+  <p class="sub" style=${{textAlign:"center"}}>रोज़ अपने आप नया राशिफल बनता है (मनोरंजन हेतु)</p>
+ </div>`}
+
+function ytId(u){const m=u.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/);return m?m[1]:null}
+function Videos(){
+ const [list,setList]=useState(()=>store.get("vids",[]));
+ const [u,setU]=useState("");const [t,setT]=useState("");const [cur,setCur]=useState(null);
+ const add=()=>{const id=ytId(u);if(!id)return alert("सही YouTube लिंक डालें");const n=[{id,t:t||"नया वीडियो"},...list];setList(n);store.set("vids",n);setU("");setT("")};
+ const del=id=>{const n=list.filter(v=>v.id!==id);setList(n);store.set("vids",n)};
+ return html`<div>
+  <div class="card"><b>🎥 वीडियो जोड़ें</b>
+   <div style=${{display:"grid",gap:8,marginTop:8}}><input placeholder="वीडियो का नाम" value=${t} onInput=${e=>setT(e.target.value)}/><input placeholder="YouTube लिंक पेस्ट करें" value=${u} onInput=${e=>setU(e.target.value)}/><button class="btn" onClick=${add}>जोड़ें</button></div></div>
+  ${cur&&html`<div class="card"><iframe class="wide" src=${"https://www.youtube.com/embed/"+cur} allowfullscreen></iframe></div>`}
+  ${!list.length&&html`<p class="sub" style=${{textAlign:"center"}}>अभी कोई वीडियो नहीं है। ऊपर से अपना पहला वीडियो जोड़ें।</p>`}
+  ${list.map(v=>html`<div class="card row" key=${v.id}><b>▶️ ${v.t}</b><span><button class="btn" onClick=${()=>setCur(v.id)}>देखें</button> <button class="btn g" onClick=${()=>del(v.id)}>🗑</button></span></div>`)}
+ </div>`}
+
+const MANTRAS=[["ॐ नमः शिवाय","शिव"],["हरे कृष्ण हरे कृष्ण, कृष्ण कृष्ण हरे हरे","कृष्ण"],["श्री राम जय राम जय जय राम","राम"],["ॐ गं गणपतये नमः","गणेश"],["ॐ नमो भगवते वासुदेवाय","विष्णु"],["ॐ हं हनुमते नमः","हनुमान"],["ॐ ऐं ह्रीं क्लीं चामुण्डायै विच्चे","देवी दुर्गा"],["ॐ भूर्भुवः स्वः तत्सवितुर्वरेण्यं भर्गो देवस्य धीमहि धियो यो नः प्रचोदयात्","गायत्री"]];
+function Jap(){
+ const [m,setM]=useState(0);
+ const [cnt,setCnt]=useState(()=>store.get("jap",{}));
+ const c=cnt[m]||0;
+ const tap=()=>{const n={...cnt,[m]:c+1};setCnt(n);store.set("jap",n);try{navigator.vibrate&&navigator.vibrate(c%108===107?200:15)}catch(e){}};
+ const reset=()=>{const n={...cnt,[m]:0};setCnt(n);store.set("jap",n)};
+ return html`<div>
+  <div class="pills">${MANTRAS.map((x,k)=>html`<button key=${k} class=${"pill"+(k===m?" on":"")} onClick=${()=>setM(k)}>${x[1]}</button>`)}</div>
+  <div class="card"><div class="mantra">🕉️ ${MANTRAS[m][0]}</div></div>
+  <div class="ring" onClick=${tap}><b>${c%108}</b><span class="sub">/ 108 • माला ${Math.floor(c/108)}</span><span class="sub">टैप करके जाप करें</span></div>
+  <div class="bar"><i style=${{width:(c%108)/1.08+"%"}}></i></div>
+  <div class="row"><span>कुल जाप: <b>${c}</b></span><button class="btn g" onClick=${reset}>रीसेट</button></div>
+ </div>`}
+
+const QS=[["भगवान हनुमान के पिता कौन माने जाते हैं (वायु देव)?",["वायु","इंद्र","अग्नि","वरुण"],0],["गणेश जी का वाहन क्या है?",["मोर","मूषक","सिंह","हंस"],1],["श्रीकृष्ण का जन्म कहाँ हुआ?",["अयोध्या","द्वारका","मथुरा","काशी"],2],["शिव जी के गले में कौन लिपटा रहता है?",["नाग","माला","तुलसी","मोर पंख"],0],["माँ दुर्गा का वाहन क्या है?",["हाथी","सिंह","उल्लू","बैल"],1],["भगवान विष्णु का शस्त्र कौन सा चक्र है?",["त्रिशूल","गदा","सुदर्शन चक्र","धनुष"],2],["रामायण के रचयिता कौन हैं?",["वेदव्यास","वाल्मीकि","तुलसीदास","कालिदास"],1],["माँ लक्ष्मी का वाहन क्या है?",["उल्लू","हंस","मोर","हाथी"],0],["कार्तिकेय का वाहन क्या है?",["मोर","बैल","शेर","घोड़ा"],0],["गीता किस युद्ध भूमि पर कही गई?",["लंका","कुरुक्षेत्र","पानीपत","चित्रकूट"],1]];
+function Quiz(){
+ const [q,setQ]=useState(0);const [s,setS]=useState(0);const [pick,setPick]=useState(null);const [best,setBest]=useState(()=>store.get("best",0));
+ const done=q>=QS.length;
+ const choose=k=>{if(pick!==null)return;setPick(k);if(k===QS[q][2])setS(s+1)};
+ const next=()=>{const nq=q+1;setQ(nq);setPick(null);if(nq>=QS.length){const sc=s;if(sc>best){setBest(sc);store.set("best",sc)}}};
+ const again=()=>{setQ(0);setS(0);setPick(null)};
+ if(done)return html`<div class="card" style=${{textAlign:"center"}}><div style=${{fontSize:48}}>${s>=8?"🏆":s>=5?"🙏":"📿"}</div><h2>आपका स्कोर ${s}/${QS.length}</h2><p class="sub">बेस्ट: ${Math.max(best,s)}</p><button class="btn" onClick=${again}>फिर से खेलें</button></div>`;
+ return html`<div class="card">
+  <div class="row"><span>प्रश्न ${q+1}/${QS.length}</span><span>⭐ ${s}</span></div>
+  <div class="bar"><i style=${{width:(q/QS.length)*100+"%"}}></i></div>
+  <h3>${QS[q][0]}</h3>
+  ${QS[q][1].map((o,k)=>html`<button key=${k} class=${"opt"+(pick!==null?(k===QS[q][2]?" ok":k===pick?" no":""):"")} onClick=${()=>choose(k)}>${o}</button>`)}
+  ${pick!==null&&html`<button class="btn" style=${{width:"100%",marginTop:8}} onClick=${next}>${q+1===QS.length?"रिज़ल्ट देखें":"अगला प्रश्न →"}</button>`}
+ </div>`}
+
+const TABS=[["राशिफल","🔮",Rashifal],["वीडियो","🎥",Videos],["जाप","📿",Jap],["क्विज़","🧠",Quiz]];
+function App(){
+ const [t,setT]=useState(0);const C=TABS[t][2];
+ return html`<div class="wrap"><header><h1>🪔 Jyotish Tark</h1><div class="sub">ज्योतिष • भक्ति • ज्ञान</div></header><${C}/>
+ <nav>${TABS.map((x,k)=>html`<button key=${k} class=${k===t?"on":""} onClick=${()=>setT(k)}><span>${x[1]}</span>${x[0]}</button>`)}</nav></div>`}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+</body>
+</html>
